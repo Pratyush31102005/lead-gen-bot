@@ -245,5 +245,18 @@
     "votesCount": 0,
     "topics": [],
     "scrapedAt": "2026-08-27T10:19:51.611Z"
+  },
+  {
+    "companyName": "Speko",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/speko",
+    "phUrl": "https://www.producthunt.com/products/speko",
+    "sourceUrl": "https://www.producthunt.com/products/speko",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-08-27T22:03:23.732Z"
   }
 ]
