@@ -1,0 +1,4 @@
+node_modules/
+dist/
+leads.json
+.env

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Lead Gen Dashboard</title>
+
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#22c55e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="LeadGen" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <meta name="description" content="Automated lead generation dashboard for early-stage SaaS startups" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #0a0a0a; }
+    .card { background: #111111; border: 1px solid #1e1e1e; }
+    .card:hover { border-color: #333; }
+    .btn-run { background: #22c55e; }
+    .btn-run:hover { background: #16a34a; }
+    .btn-run:disabled { background: #166534; cursor: not-allowed; }
+    .copy-btn { background: #1e1e1e; border: 1px solid #333; }
+    .copy-btn:hover { background: #2a2a2a; border-color: #555; }
+    .copy-btn.copied { background: #166534; border-color: #22c55e; color: #22c55e; }
+    .badge { background: #166534; color: #22c55e; }
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #22c55e; color: #000; padding: 12px 20px;
+      border-radius: 8px; font-weight: 600; font-size: 14px;
+      transform: translateY(80px); opacity: 0; transition: all 0.3s;
+      z-index: 100;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .spinner { border: 3px solid #1e1e1e; border-top-color: #22c55e; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.6s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Install banner */
+    .install-banner {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #111; border-top: 1px solid #1e1e1e;
+      padding: 16px 24px; z-index: 200;
+    }
+    .install-banner.show { display: flex; }
+    .install-banner button { flex-shrink: 0; }
+  </style>
+</head>
+<body class="min-h-screen text-white font-sans">
+
+  <!-- Header -->
+  <header class="border-b border-[#1e1e1e] px-6 py-4" style="padding-top: env(safe-area-inset-top, 16px)">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+          <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <h1 class="text-lg font-semibold tracking-tight">Lead Gen Dashboard</h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <span id="leadCount" class="text-sm text-gray-500">0 leads</span>
+        <button id="runBtn" class="btn-run text-black text-sm font-semibold px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Run Scraper
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Status Bar -->
+  <div id="statusBar" class="hidden border-b border-[#1e1e1e] px-6 py-3 bg-[#111]">
+    <div class="max-w-6xl mx-auto flex items-center gap-3 text-sm">
+      <div class="spinner"></div>
+      <span id="statusText" class="text-gray-400">Running scraper...</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <div id="emptyState" class="hidden text-center py-20">
+      <div class="w-16 h-16 rounded-2xl bg-[#111] border border-[#1e1e1e] flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+        </svg>
+      </div>
+      <p class="text-gray-500 text-sm">No leads yet. Click <strong class="text-white">Run Scraper</strong> to get started.</p>
+    </div>
+    <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </main>
+
+  <!-- Install Banner -->
+  <div id="installBanner" class="install-banner items-center gap-4">
+    <div class="flex-1">
+      <p class="text-white text-sm font-medium">Install LeadGen Dashboard</p>
+      <p class="text-gray-400 text-xs">Add to your home screen for quick access</p>
+    </div>
+    <button onclick="installApp()" class="bg-green-500 text-black text-xs font-semibold px-4 py-2 rounded-lg">Install</button>
+    <button onclick="dismissInstall()" class="text-gray-500 text-xs hover:text-white">Dismiss</button>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast">Copied to clipboard</div>
+
+  <script>
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+    }
+
+    // PWA Install Prompt
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (!localStorage.getItem('installDismissed')) {
+        document.getElementById('installBanner').classList.add('show');
+      }
+    });
+
+    function installApp() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((r) => {
+        if (r.outcome === 'accepted') {
+          document.getElementById('installBanner').classList.remove('show');
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    function dismissInstall() {
+      localStorage.setItem('installDismissed', '1');
+      document.getElementById('installBanner').classList.remove('show');
+    }
+
+    window.addEventListener('appinstalled', () => {
+      document.getElementById('installBanner').classList.remove('show');
+      deferredPrompt = null;
+    });
+
+    // App Logic
+    const cardsGrid = document.getElementById('cardsGrid');
+    const emptyState = document.getElementById('emptyState');
+    const leadCount = document.getElementById('leadCount');
+    const runBtn = document.getElementById('runBtn');
+    const statusBar = document.getElementById('statusBar');
+    const statusText = document.getElementById('statusText');
+    const toast = document.getElementById('toast');
+
+    async function loadLeads() {
+      try {
+        const res = await fetch('/api/leads');
+        const leads = await res.json();
+        renderLeads(leads);
+      } catch (err) {
+        console.error('Failed to load leads:', err);
+      }
+    }
+
+    function renderLeads(leads) {
+      leadCount.textContent = `${leads.length} lead${leads.length !== 1 ? 's' : ''}`;
+
+      if (leads.length === 0) {
+        cardsGrid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      cardsGrid.innerHTML = leads.map((lead, i) => `
+        <div class="card rounded-xl p-5 transition-all" style="animation: fadeIn 0.3s ease ${i * 0.05}s both">
+          <div class="flex items-start justify-between mb-3">
+            <h3 class="font-semibold text-white text-sm leading-tight">${escapeHtml(lead.companyName)}</h3>
+            <span class="badge text-[10px] font-medium px-2 py-0.5 rounded-full shrink-0 ml-2">GOOD FIT</span>
+          </div>
+
+          <p class="text-gray-400 text-xs mb-3 leading-relaxed">${escapeHtml(lead.whatTheyDo)}</p>
+
+          <div class="flex items-center gap-2 text-xs text-gray-500 mb-3">
+            ${lead.xHandle ? `
+              <a href="https://x.com/${escapeHtml(lead.xHandle)}" target="_blank" rel="noopener" class="flex items-center gap-1 hover:text-white transition-colors">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                @${escapeHtml(lead.xHandle)}
+              </a>
+            ` : '<span>No X handle</span>'}
+            <span class="text-gray-700">|</span>
+            <a href="${escapeHtml(lead.websiteUrl)}" target="_blank" rel="noopener" class="hover:text-white transition-colors truncate max-w-[140px]">${extractDomain(lead.websiteUrl)}</a>
+          </div>
+
+          <p class="text-gray-500 text-[11px] mb-4 leading-relaxed">${escapeHtml(lead.fitReason)}</p>
+
+          <div class="border-t border-[#1e1e1e] pt-3">
+            <p class="text-[10px] uppercase tracking-wider text-gray-600 mb-2 font-medium">Custom Pitch</p>
+            <p class="text-gray-300 text-xs leading-relaxed mb-3">${escapeHtml(lead.customPitch)}</p>
+            <button onclick="copyPitch(this, '${escapeAttr(lead.customPitch)}')" class="copy-btn text-[11px] text-gray-400 px-3 py-1.5 rounded-md w-full transition-all">
+              Copy to Clipboard
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function copyPitch(btn, pitch) {
+      navigator.clipboard.writeText(pitch).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        showToast();
+        setTimeout(() => {
+          btn.textContent = 'Copy to Clipboard';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    function showToast() {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    runBtn.addEventListener('click', async () => {
+      runBtn.disabled = true;
+      runBtn.innerHTML = '<div class="spinner"></div> Running...';
+      statusBar.classList.remove('hidden');
+      statusText.textContent = 'Scraping Product Hunt & qualifying leads...';
+
+      try {
+        const res = await fetch('/api/run', { method: 'POST' });
+        const data = await res.json();
+
+        if (data.code === 0) {
+          statusText.textContent = 'Done! Reloading leads...';
+          await loadLeads();
+          setTimeout(() => statusBar.classList.add('hidden'), 1500);
+        } else {
+          statusText.textContent = `Scraper exited with code ${data.code}. Check terminal for errors.`;
+          setTimeout(() => statusBar.classList.add('hidden'), 4000);
+        }
+      } catch (err) {
+        statusText.textContent = `Error: ${err.message}`;
+        setTimeout(() => statusBar.classList.add('hidden'), 4000);
+      }
+
+      runBtn.disabled = false;
+      runBtn.innerHTML = `
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Run Scraper`;
+    });
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function escapeAttr(str) {
+      if (!str) return '';
+      return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n');
+    }
+
+    function extractDomain(url) {
+      try { return new URL(url).hostname; } catch { return url; }
+    }
+
+    loadLeads();
+  </script>
+</body>
+</html>
