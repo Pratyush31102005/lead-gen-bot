@@ -1,4 +1,4 @@
-// Service worker — handles storage and messaging
+// Service worker — handles storage, messaging, and GitHub sync
 const GITHUB_REPO = 'Pratyush31102005/lead-gen-bot';
 const GITHUB_FILE = 'leads.json';
 
@@ -23,8 +23,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return false;
   }
 
-  if (msg.type === 'IMPORT_FROM_GITHUB') {
-    importFromGitHub().then((count) => sendResponse({ count }));
+  if (msg.type === 'SYNC_FROM_GITHUB') {
+    syncFromGitHub().then((result) => sendResponse(result));
     return true;
   }
 
@@ -36,8 +36,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
 async function saveLead(lead) {
   const { leads = [] } = await chrome.storage.local.get('leads');
-
-  // Deduplicate by sourceUrl
   const exists = leads.find((l) => l.sourceUrl === lead.sourceUrl);
   if (!exists) {
     leads.unshift(lead);
@@ -63,10 +61,11 @@ async function updateBadge() {
   chrome.action.setBadgeBackgroundColor({ color: '#22c55e' });
 }
 
-async function importFromGitHub() {
+async function syncFromGitHub() {
   try {
     const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`);
-    if (!res.ok) return 0;
+    if (!res.ok) return { added: 0, error: `GitHub API error: ${res.status}` };
+
     const data = await res.json();
     const content = atob(data.content);
     const remoteLeads = JSON.parse(content);
@@ -86,9 +85,10 @@ async function importFromGitHub() {
       await chrome.storage.local.set({ leads });
       updateBadge();
     }
-    return added;
-  } catch {
-    return 0;
+
+    return { added, total: leads.length };
+  } catch (err) {
+    return { added: 0, error: err.message };
   }
 }
 
@@ -96,23 +96,23 @@ async function exportCSV() {
   const { leads = [] } = await chrome.storage.local.get('leads');
   if (leads.length === 0) return '';
 
-  const headers = ['Company', 'Description', 'X Handle', 'Email', 'Website', 'Source URL', 'Scraped At'];
+  const headers = ['Company', 'Description', 'X Handle', 'Email', 'Website', 'Votes', 'Topics', 'Source URL', 'Scraped At'];
   const rows = leads.map((l) => [
     l.companyName,
     l.description,
     l.xHandle || '',
     l.email || '',
     l.websiteUrl,
+    l.votesCount || 0,
+    (l.topics || []).join('; '),
     l.sourceUrl,
     l.scrapedAt,
   ]);
 
-  const csvContent = [headers, ...rows]
+  return [headers, ...rows]
     .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
     .join('\n');
-
-  return csvContent;
 }
 
-// Update badge on startup
+// Auto-sync on service worker startup
 updateBadge();

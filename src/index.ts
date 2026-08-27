@@ -1,144 +1,157 @@
-import { chromium } from 'playwright-extra';
-import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { fetchRecentProducts } from './ph-api.js';
+import { filterProducts } from './filter.js';
+import { scrapeContacts } from './scraper.js';
 import type { Lead } from './types.js';
-import { writeFileSync } from 'node:fs';
-import { fetchRssLeads } from './rss.js';
 
-chromium.use(StealthPlugin());
-
-const xPatterns = /(?:twitter\.com|x\.com)\/([a-zA-Z0-9_]+)\/?$/;
-const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-const junkDomains = ['example.com', 'sentry.io', 'vercel.com', 'github.io', 'images', 'schema.org', 'w3.org', 'googleapis.com', 'gstatic.com', 'facebook.com', 'twitter.com', 'x.com'];
-
-function extractFromHtml(html: string): { xHandle: string | null; email: string | null } {
-  const xMatch = html.match(xPatterns);
-  const xHandle = xMatch && xMatch[1].length > 1 ? xMatch[1] : null;
-
-  const emails = html.match(emailPattern) || [];
-  const filtered = [...new Set(emails)].filter((e) => {
-    const domain = e.split('@')[1]?.toLowerCase() || '';
-    return !junkDomains.some((d) => domain.includes(d));
-  });
-
-  return { xHandle, email: filtered[0] || null };
-}
+const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
-  console.log('Fetching Product Hunt RSS feed...');
-  const rssLeads = await fetchRssLeads();
-  console.log(`Found ${rssLeads.length} leads\n`);
+  console.log('=== Lead Gen Bot — Automated Lead Finder ===\n');
 
-  const browser = await chromium.launch({ headless: true });
+  // Step 1: Fetch recent products from PH RSS
+  console.log('Fetching recent products from Product Hunt RSS...');
+  const products = await fetchRecentProducts();
+  console.log(`Found ${products.length} products\n`);
+
+  // Step 2: Filter (keep all non-enterprise)
+  console.log('Filtering for indie products...');
+  const filtered = filterProducts(products);
+  const relevant = filtered.filter((p) => p.isRelevant);
+  console.log(`Kept ${relevant.length} / ${products.length} products\n`);
+
+  // Step 3: Scrape each product's PH page and external website
+  console.log('Scraping for X handles and emails...\n');
   const leads: Lead[] = [];
 
-  try {
-    for (const rss of rssLeads) {
-      try {
-        process.stdout.write(`Processing: ${rss.title}...`);
+  for (const product of relevant) {
+    try {
+      process.stdout.write(`  ${product.name}...`);
 
-        const page = await browser.newPage();
-        await page.setExtraHTTPHeaders({
-          'Accept-Language': 'en-US,en;q=0.9',
-        });
+      // Try to find website from PH page
+      let websiteUrl = product.website;
 
+      if (!websiteUrl) {
+        // Try fetching the PH page for external links
         try {
-          await page.goto(rss.link, { waitUntil: 'networkidle', timeout: 20000 });
-          await page.waitForTimeout(3000);
-
-          const html = await page.content();
-
-          // Check if we hit Cloudflare
-          if (html.includes('cloudflare') || html.includes('challenge')) {
-            console.log(' (Cloudflare blocked)');
-            leads.push({
-              companyName: rss.title,
-              description: rss.contentSnippet.substring(0, 200),
-              xHandle: null,
-              email: null,
-              websiteUrl: rss.link,
-              sourceUrl: rss.link,
-              scrapedAt: new Date().toISOString(),
-            });
-            continue;
-          }
-
-          // Find external website
-          const externalUrl = await page.evaluate(() => {
-            for (const el of document.querySelectorAll('a[href]')) {
-              const href = el.getAttribute('href') || '';
-              if (
-                href.startsWith('http') &&
-                !href.includes('producthunt.com') &&
-                !href.includes('twitter.com') &&
-                !href.includes('x.com') &&
-                !href.includes('facebook.com') &&
-                !href.includes('linkedin.com')
-              ) {
-                return href;
-              }
-            }
-            return null;
+          const res = await fetch(product.url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+            redirect: 'follow',
           });
-
-          const phData = extractFromHtml(html);
-
-          // Try scraping external site
-          let extData = { xHandle: null as string | null, email: null as string | null };
-          if (externalUrl && !externalUrl.includes('cloudflare')) {
-            try {
-              const extPage = await browser.newPage();
-              await extPage.goto(externalUrl, { waitUntil: 'domcontentloaded', timeout: 10000 });
-              await extPage.waitForTimeout(1500);
-              const extHtml = await extPage.content();
-              extData = extractFromHtml(extHtml);
-              await extPage.close();
-            } catch {
-              // External site failed, use PH data
+          if (res.ok) {
+            const html = await res.text();
+            // Simple regex to find external URLs
+            const urlMatch = html.match(/href="(https?:\/\/(?!.*producthunt)[^"]+)"/);
+            if (urlMatch) {
+              websiteUrl = urlMatch[1];
             }
           }
-
-          leads.push({
-            companyName: rss.title,
-            description: rss.contentSnippet.substring(0, 200),
-            xHandle: extData.xHandle || phData.xHandle,
-            email: extData.email || phData.email,
-            websiteUrl: externalUrl || rss.link,
-            sourceUrl: rss.link,
-            scrapedAt: new Date().toISOString(),
-          });
-
-          const xHandle = extData.xHandle || phData.xHandle;
-          const email = extData.email || phData.email;
-          const contacts = [xHandle ? `X: @${xHandle}` : '', email ? `Email: ${email}` : ''].filter(Boolean).join(', ');
-          console.log(` ${contacts || 'no contacts found'}`);
-        } finally {
-          await page.close();
+        } catch {
+          // PH page blocked, continue
         }
-      } catch (err) {
-        console.log(` failed: ${err}`);
       }
+
+      if (!websiteUrl) {
+        console.log(' no website found');
+        leads.push({
+          companyName: product.name,
+          description: product.description?.substring(0, 200) || product.tagline,
+          tagline: product.tagline,
+          xHandle: null,
+          email: null,
+          websiteUrl: product.url,
+          sourceUrl: product.url,
+          votesCount: product.votesCount,
+          topics: product.topics,
+          scrapedAt: new Date().toISOString(),
+        });
+        continue;
+      }
+
+      // Scrape the external website
+      const contacts = await scrapeContacts(websiteUrl);
+
+      const lead: Lead = {
+        companyName: product.name,
+        description: product.description?.substring(0, 200) || product.tagline,
+        tagline: product.tagline,
+        xHandle: contacts.xHandle,
+        email: contacts.email,
+        websiteUrl,
+        sourceUrl: product.url,
+        votesCount: product.votesCount,
+        topics: product.topics,
+        scrapedAt: new Date().toISOString(),
+      };
+
+      leads.push(lead);
+
+      const parts = [
+        contacts.xHandle ? `X:@${contacts.xHandle}` : '',
+        contacts.email ? `E:${contacts.email}` : '',
+      ].filter(Boolean).join(' | ');
+
+      console.log(` ${websiteUrl} ${parts ? '| ' + parts : ''}`);
+    } catch (err) {
+      console.log(` error: ${err}`);
     }
-  } finally {
-    await browser.close();
+
+    await delay(1500);
   }
 
-  writeFileSync('leads.json', JSON.stringify(leads, null, 2));
+  // Step 4: Load existing leads and merge (deduplicate)
+  const existingLeads = loadExistingLeads();
+  const merged = mergeLeads(existingLeads, leads);
 
+  // Step 5: Save
+  saveLeads(merged);
+
+  // Summary
   console.log('\n' + '='.repeat(60));
-  console.log(`Scraped ${leads.length} leads`);
-  console.log(`With X handle: ${leads.filter((l) => l.xHandle).length}`);
-  console.log(`With email: ${leads.filter((l) => l.email).length}`);
+  console.log(`New leads scraped: ${leads.length}`);
+  console.log(`Total leads (with previous): ${merged.length}`);
+  console.log(`With X handle: ${merged.filter((l) => l.xHandle).length}`);
+  console.log(`With email: ${merged.filter((l) => l.email).length}`);
   console.log('='.repeat(60));
 
+  // Print table
   console.log('\nCompany | X Handle | Email | Website');
-  console.log('-'.repeat(80));
+  console.log('-'.repeat(90));
   for (const lead of leads) {
     console.log(
       `${lead.companyName} | ${lead.xHandle ? '@' + lead.xHandle : '—'} | ${lead.email || '—'} | ${lead.websiteUrl}`
     );
   }
 
-  console.log(`\nSaved to leads.json`);
+  console.log(`\nSaved ${merged.length} leads to leads.json`);
+}
+
+function loadExistingLeads(): Lead[] {
+  if (!existsSync('leads.json')) return [];
+  try {
+    const data = readFileSync('leads.json', 'utf-8');
+    return JSON.parse(data);
+  } catch {
+    return [];
+  }
+}
+
+function mergeLeads(existing: Lead[], newLeads: Lead[]): Lead[] {
+  const seen = new Set(existing.map((l) => l.sourceUrl));
+  const merged = [...existing];
+
+  for (const lead of newLeads) {
+    if (!seen.has(lead.sourceUrl)) {
+      merged.push(lead);
+      seen.add(lead.sourceUrl);
+    }
+  }
+
+  return merged;
+}
+
+function saveLeads(leads: Lead[]) {
+  writeFileSync('leads.json', JSON.stringify(leads, null, 2));
 }
 
 main();

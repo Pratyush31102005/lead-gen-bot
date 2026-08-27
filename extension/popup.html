@@ -22,10 +22,11 @@
         </div>
       </div>
       <div class="header-right">
-        <button id="importBtn" class="btn-icon" title="Import from GitHub">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button id="syncBtn" class="btn-primary" title="Sync from GitHub">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
           </svg>
+          Sync
         </button>
         <button id="exportBtn" class="btn-icon" title="Export CSV">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -41,10 +42,10 @@
     <!-- Empty state -->
     <div id="emptyState" class="empty-state">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5">
-        <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
       </svg>
       <p>No leads yet</p>
-      <span>Browse Product Hunt and click <strong>Save Lead</strong></span>
+      <span>Click <strong>Sync</strong> to pull leads from GitHub</span>
     </div>
 
     <!-- Table -->
@@ -55,6 +56,7 @@
             <th>Company</th>
             <th>X</th>
             <th>Email</th>
+            <th>Votes</th>
             <th></th>
           </tr>
         </thead>

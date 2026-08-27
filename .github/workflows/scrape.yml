@@ -2,8 +2,8 @@ name: Scrape Leads
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # 9 AM UTC daily
-  workflow_dispatch:       # Manual trigger
+    - cron: '0 */12 * * *'  # Every 12 hours
+  workflow_dispatch:         # Manual trigger
 
 jobs:
   scrape:
@@ -18,11 +18,9 @@ jobs:
 
       - run: npm install
 
-      - run: npx playwright install --with-deps chromium
-
       - run: npm start
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'Update leads.json'
+          commit_message: 'Auto-update leads.json'
           file_pattern: 'leads.json'

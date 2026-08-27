@@ -5,7 +5,7 @@
 }
 
 body {
-  width: 480px;
+  width: 520px;
   max-height: 560px;
   background: #0a0a0a;
   color: #fff;
@@ -59,7 +59,32 @@ h1 {
 
 .header-right {
   display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-primary {
+  background: #22c55e;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
   gap: 6px;
+  transition: all 0.15s;
+}
+
+.btn-primary:hover {
+  background: #16a34a;
+}
+
+.btn-primary:disabled {
+  background: #166534;
+  cursor: not-allowed;
 }
 
 .btn-icon {
@@ -81,6 +106,18 @@ h1 {
   color: #fff;
   border-color: #333;
 }
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #166534;
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* Status */
 .status {
@@ -159,7 +196,7 @@ thead {
 
 th {
   text-align: left;
-  padding: 10px 16px;
+  padding: 10px 12px;
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
@@ -170,7 +207,7 @@ th {
 }
 
 td {
-  padding: 10px 16px;
+  padding: 10px 12px;
   border-bottom: 1px solid #141414;
   vertical-align: middle;
 }
@@ -182,10 +219,30 @@ tr:hover td {
 .company {
   font-weight: 500;
   color: #fff;
-  max-width: 140px;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.topics {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.topic {
+  font-size: 9px;
+  background: #1a1a1a;
+  color: #666;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.votes {
+  font-size: 12px;
+  color: #888;
+  font-weight: 500;
 }
 
 .contact-cell {
@@ -197,7 +254,7 @@ tr:hover td {
 .contact-text {
   color: #999;
   font-size: 12px;
-  max-width: 120px;
+  max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

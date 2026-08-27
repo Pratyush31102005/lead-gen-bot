@@ -3,14 +3,14 @@ const leadCount = document.getElementById('leadCount');
 const emptyState = document.getElementById('emptyState');
 const tableWrap = document.getElementById('tableWrap');
 const status = document.getElementById('status');
-const importBtn = document.getElementById('importBtn');
+const syncBtn = document.getElementById('syncBtn');
 const exportBtn = document.getElementById('exportBtn');
 
 function showStatus(msg, isError = false) {
   status.textContent = msg;
   status.className = `status${isError ? ' error' : ''}`;
   status.classList.remove('hidden');
-  setTimeout(() => status.classList.add('hidden'), 3000);
+  setTimeout(() => status.classList.add('hidden'), 4000);
 }
 
 async function loadLeads() {
@@ -40,7 +40,8 @@ function renderLeads(leads) {
       (lead, i) => `
     <tr>
       <td>
-        <div class="company" title="${esc(lead.companyName)}">${esc(lead.companyName)}</div>
+        <div class="company" title="${esc(lead.tagline || lead.description)}">${esc(lead.companyName)}</div>
+        <div class="topics">${(lead.topics || []).slice(0, 2).map(t => '<span class="topic">' + esc(t) + '</span>').join('')}</div>
       </td>
       <td>
         <div class="contact-cell">
@@ -73,6 +74,9 @@ function renderLeads(leads) {
         </div>
       </td>
       <td>
+        <span class="votes">${lead.votesCount || 0}</span>
+      </td>
+      <td>
         <button class="btn-delete" onclick="deleteLead(${i})" title="Delete lead">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -103,17 +107,27 @@ window.deleteLead = function (index) {
   });
 };
 
-// Import from GitHub
-importBtn.addEventListener('click', async () => {
-  importBtn.disabled = true;
-  showStatus('Importing from GitHub...');
-  chrome.runtime.sendMessage({ type: 'IMPORT_FROM_GITHUB' }, (res) => {
-    importBtn.disabled = false;
-    if (res?.count > 0) {
-      showStatus(`Imported ${res.count} new leads`);
+// Sync from GitHub
+syncBtn.addEventListener('click', async () => {
+  syncBtn.disabled = true;
+  syncBtn.innerHTML = '<div class="spinner"></div> Syncing...';
+  showStatus('Pulling leads from GitHub...');
+
+  chrome.runtime.sendMessage({ type: 'SYNC_FROM_GITHUB' }, (res) => {
+    syncBtn.disabled = false;
+    syncBtn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+      </svg>
+      Sync`;
+
+    if (res?.error) {
+      showStatus(`Error: ${res.error}`, true);
+    } else if (res?.added > 0) {
+      showStatus(`Synced ${res.added} new leads (total: ${res.total})`);
       loadLeads();
     } else {
-      showStatus('No new leads found', true);
+      showStatus('No new leads found');
     }
   });
 });
