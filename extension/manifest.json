@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "LeadGen - PH Lead Finder",
+  "version": "1.0.0",
+  "description": "Scrapes Product Hunt pages for X handles and emails. Your personal lead finder.",
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": [
+    "https://www.producthunt.com/*",
+    "https://api.github.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.producthunt.com/posts/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

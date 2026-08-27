@@ -1,0 +1,254 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 480px;
+  max-height: 560px;
+  background: #0a0a0a;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 560px;
+}
+
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #1e1e1e;
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  background: rgba(34, 197, 94, 0.15);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+h1 {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+.count {
+  font-size: 11px;
+  color: #666;
+}
+
+.header-right {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  background: #111;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  color: #888;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.btn-icon:hover {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #333;
+}
+
+/* Status */
+.status {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.08);
+  border-bottom: 1px solid #1e1e1e;
+  flex-shrink: 0;
+}
+
+.status.error {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 8px;
+}
+
+.empty-state p {
+  color: #555;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.empty-state span {
+  color: #444;
+  font-size: 12px;
+}
+
+.empty-state strong {
+  color: #22c55e;
+}
+
+/* Table */
+.table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.table-wrap::-webkit-scrollbar {
+  width: 4px;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #555;
+  background: #0a0a0a;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #141414;
+  vertical-align: middle;
+}
+
+tr:hover td {
+  background: #111;
+}
+
+.company {
+  font-weight: 500;
+  color: #fff;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contact-text {
+  color: #999;
+  font-size: 12px;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-text.has-value {
+  color: #22c55e;
+}
+
+.btn-copy {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: 1px solid #222;
+  border-radius: 4px;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.btn-copy:hover {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #444;
+}
+
+.btn-copy.copied {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border-color: #22c55e;
+}
+
+.btn-delete {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: #444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}

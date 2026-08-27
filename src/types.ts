@@ -1,16 +1,9 @@
-export interface RssLead {
-  title: string;
-  link: string;
-  contentSnippet: string;
-  pubDate: string;
-}
-
-export interface QualifiedLead {
+export interface Lead {
   companyName: string;
-  whatTheyDo: string;
+  description: string;
   xHandle: string | null;
+  email: string | null;
   websiteUrl: string;
-  isGoodFit: boolean;
-  fitReason: string;
-  customPitch: string;
+  sourceUrl: string;
+  scrapedAt: string;
 }

@@ -1,22 +1,23 @@
 {
   "name": "lead-gen-bot",
-  "version": "1.0.0",
-  "description": "Automated lead generation CLI for early-stage SaaS startups",
+  "version": "2.0.0",
+  "description": "Product Hunt lead finder — scrapes X handles and emails",
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
     "dashboard": "node dashboard/server.js"
   },
   "dependencies": {
-    "rss-parser": "^3.13.0",
-    "@google/generative-ai": "^0.21.0",
     "cheerio": "^1.0.0",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.0"
+    "express": "^4.21.0",
+    "playwright": "^1.62.1",
+    "playwright-extra": "^4.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "rss-parser": "^3.13.0"
   },
   "devDependencies": {
-    "typescript": "^5.7.0",
+    "@types/node": "^22.10.0",
     "tsx": "^4.19.0",
-    "@types/node": "^22.10.0"
+    "typescript": "^5.7.0"
   }
 }

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LeadGen</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header>
+      <div class="header-left">
+        <div class="logo">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>LeadGen</h1>
+          <span id="leadCount" class="count">0 leads</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <button id="importBtn" class="btn-icon" title="Import from GitHub">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+        </button>
+        <button id="exportBtn" class="btn-icon" title="Export CSV">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Status message -->
+    <div id="status" class="status hidden"></div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.5">
+        <path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+      </svg>
+      <p>No leads yet</p>
+      <span>Browse Product Hunt and click <strong>Save Lead</strong></span>
+    </div>
+
+    <!-- Table -->
+    <div id="tableWrap" class="table-wrap hidden">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>X</th>
+            <th>Email</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="leadsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

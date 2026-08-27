@@ -1,112 +1,89 @@
-import * as cheerio from 'cheerio';
-
-const UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+import { chromium } from 'playwright';
 
 const xPatterns = /(?:twitter\.com|x\.com)\/([a-zA-Z0-9_]+)\/?$/;
-
-async function fetchHtml(url: string, timeoutMs = 6000): Promise<string | null> {
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutMs);
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': UA },
-    });
-    clearTimeout(timeout);
-    if (!res.ok) return null;
-    return await res.text();
-  } catch {
-    return null;
-  }
-}
+const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const junkDomains = ['example.com', 'sentry.io', 'vercel.com', 'github.io', 'images', 'schema.org', 'w3.org', 'googleapis.com', 'gstatic.com', 'facebook.com', 'twitter.com', 'x.com'];
 
 function extractXHandle(html: string): string | null {
-  const $ = cheerio.load(html);
-
-  // 1. Check <meta name="twitter:site"> and <meta name="twitter:creator">
-  for (const attr of ['twitter:site', 'twitter:creator']) {
-    const content = $(`meta[name="${attr}"]`).attr('content');
-    if (content) {
-      const match = content.match(/@?([a-zA-Z0-9_]+)/);
-      if (match) return match[1];
-    }
+  const match = html.match(xPatterns);
+  if (match && match[1].length > 1 && !junkDomains.some((d) => match[1].toLowerCase().includes(d))) {
+    return match[1];
   }
-
-  // 2. Check <meta property="og:url">
-  const ogUrl = $('meta[property="og:url"]').attr('content');
-  if (ogUrl) {
-    const match = ogUrl.match(xPatterns);
-    if (match) return match[1];
-  }
-
-  // 3. Scan all <a> hrefs
-  for (const el of $('a[href]').toArray()) {
-    const href = $(el).attr('href') ?? '';
-    const match = href.match(xPatterns);
-    if (match) return match[1];
-  }
-
-  // 4. Regex scan raw HTML as a last resort
-  const htmlMatch = html.match(xPatterns);
-  if (htmlMatch) return htmlMatch[1];
-
   return null;
 }
 
-async function getExternalUrl(phUrl: string): Promise<string | null> {
-  const html = await fetchHtml(phUrl);
-  if (!html) return null;
-
-  const $ = cheerio.load(html);
-
-  // Product Hunt pages link to the product's external site
-  // Look for the "Website" link or similar external link patterns
-  for (const el of $('a[href]').toArray()) {
-    const href = $(el).attr('href') ?? '';
-    // Skip internal PH links, social links, and common non-product domains
-    if (
-      href.startsWith('#') ||
-      href.includes('producthunt.com') ||
-      href.includes('twitter.com') ||
-      href.includes('x.com') ||
-      href.includes('facebook.com') ||
-      href.includes('linkedin.com') ||
-      href.includes('instagram.com') ||
-      href.includes('youtube.com') ||
-      href.includes('github.com') ||
-      href.includes('mailto:')
-    ) {
-      continue;
-    }
-    // Must be a real external HTTP(S) URL
-    if (/^https?:\/\/.+\..+/.test(href)) {
-      return href;
-    }
-  }
-
-  return null;
+function extractEmail(html: string): string | null {
+  const emails = html.match(emailPattern) || [];
+  const filtered = [...new Set(emails)].filter((e) => {
+    const domain = e.split('@')[1]?.toLowerCase() || '';
+    return !junkDomains.some((d) => domain.includes(d));
+  });
+  return filtered[0] || null;
 }
 
-export async function fetchXHandle(url: string): Promise<{ handle: string | null; externalUrl: string | null }> {
-  // Step 1: Try to find the actual product website from the Product Hunt page
-  const externalUrl = await getExternalUrl(url);
+export async function scrapeLead(phUrl: string): Promise<{
+  xHandle: string | null;
+  email: string | null;
+  websiteUrl: string | null;
+}> {
+  const browser = await chromium.launch({ headless: true });
+  const page = await browser.newPage();
 
-  // Step 2: Scrape the external site for X handles
-  if (externalUrl) {
-    const html = await fetchHtml(externalUrl);
-    if (html) {
-      const handle = extractXHandle(html);
-      if (handle) return { handle, externalUrl };
-    }
+  try {
+    // Go to PH page
+    await page.goto(phUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+    await page.waitForTimeout(2000); // Wait for SPA to render
+
+    // Extract data from the rendered page
+    const data = await page.evaluate(() => {
+      const xPattern = /(?:twitter\.com|x\.com)\/([a-zA-Z0-9_]+)\/?$/;
+      const emailP = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+
+      // Find X handle
+      let xHandle: string | null = null;
+      for (const el of document.querySelectorAll('a[href]')) {
+        const href = el.getAttribute('href') || '';
+        const m = href.match(xPattern);
+        if (m && m[1].length > 1) { xHandle = m[1]; break; }
+      }
+
+      // Find email
+      let email: string | null = null;
+      for (const el of document.querySelectorAll('a[href^="mailto:"]')) {
+        const e = (el.getAttribute('href') || '').replace('mailto:', '').split('?')[0].trim();
+        if (emailP.test(e)) { email = e; break; }
+      }
+      if (!email) {
+        const html = document.documentElement.innerHTML;
+        const emails = html.match(emailP) || [];
+        if (emails.length > 0) email = emails[0];
+      }
+
+      // Find external website URL
+      let websiteUrl: string | null = null;
+      for (const el of document.querySelectorAll('a[href]')) {
+        const href = el.getAttribute('href') || '';
+        if (
+          href.startsWith('http') &&
+          !href.includes('producthunt.com') &&
+          !href.includes('twitter.com') &&
+          !href.includes('x.com') &&
+          !href.includes('facebook.com') &&
+          !href.includes('linkedin.com')
+        ) {
+          websiteUrl = href;
+          break;
+        }
+      }
+
+      return { xHandle, email, websiteUrl };
+    });
+
+    return data;
+  } catch (err) {
+    console.error(`  Playwright error: ${err}`);
+    return { xHandle: null, email: null, websiteUrl: null };
+  } finally {
+    await browser.close();
   }
-
-  // Step 3: Fallback — scrape the Product Hunt page itself
-  const phHtml = await fetchHtml(url);
-  if (phHtml) {
-    const handle = extractXHandle(phHtml);
-    return { handle, externalUrl };
-  }
-
-  return { handle: null, externalUrl };
 }
