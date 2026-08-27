@@ -5,6 +5,7 @@ export interface Lead {
   xHandle: string | null;
   email: string | null;
   websiteUrl: string;
+  phUrl: string;
   sourceUrl: string;
   votesCount: number;
   topics: string[];

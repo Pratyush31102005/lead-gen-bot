@@ -1,8 +1,4 @@
-// Product Hunt data extraction via RSS + scraping
-// RSS works reliably, then we scrape external sites for contacts
-
 import Parser from 'rss-parser';
-import * as cheerio from 'cheerio';
 
 const parser = new Parser({
   timeout: 10000,
@@ -21,9 +17,95 @@ export interface PhProduct {
   votesCount: number;
   createdAt: string;
   topics: string[];
+  xHandle: string | null;
+  email: string | null;
 }
 
-export async function fetchRecentProducts(): Promise<PhProduct[]> {
+// ─── GraphQL API (primary — reliable, returns website + contacts) ────────────
+
+const PH_GRAPHQL_URL = 'https://api.producthunt.com/v2/api/graphql';
+
+const POSTS_QUERY = `
+  query($first: Int!) {
+    posts(first: $first, order: VOTES) {
+      edges {
+        node {
+          id
+          name
+          tagline
+          description
+          url
+          website
+          votesCount
+          createdAt
+          topics {
+            edges {
+              node {
+                name
+              }
+            }
+          }
+          user {
+            name
+            username
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function fetchFromPhApi(token: string): Promise<PhProduct[]> {
+  console.log('Using Product Hunt GraphQL API...');
+
+  const res = await fetch(PH_GRAPHQL_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      query: POSTS_QUERY,
+      variables: { first: 20 },
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`PH API error ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+
+  if (data.errors) {
+    throw new Error(`PH API GraphQL errors: ${JSON.stringify(data.errors)}`);
+  }
+
+  const edges = data.data?.posts?.edges || [];
+
+  return edges.map((edge: any) => {
+    const node = edge.node;
+    return {
+      name: node.name || 'Unknown',
+      tagline: node.tagline || '',
+      description: node.description || node.tagline || '',
+      url: node.url || '',
+      website: node.website || null,
+      votesCount: node.votesCount || 0,
+      createdAt: node.createdAt || new Date().toISOString(),
+      topics: (node.topics?.edges || []).map((t: any) => t.node.name),
+      xHandle: null, // PH API doesn't provide twitter handle directly
+      email: null,   // PH API doesn't provide email directly
+    };
+  });
+}
+
+// ─── RSS fallback (no token needed, but no website/contacts) ─────────────────
+
+export async function fetchFromRss(): Promise<PhProduct[]> {
+  console.log('Using RSS feed (no PH token — limited data)...');
+
   const feed = await parser.parseURL('https://www.producthunt.com/feed');
 
   return feed.items.slice(0, 20).map((item) => ({
@@ -31,46 +113,28 @@ export async function fetchRecentProducts(): Promise<PhProduct[]> {
     tagline: item.contentSnippet?.substring(0, 100) || '',
     description: item.contentSnippet || '',
     url: item.link || '',
-    website: null, // Will be found by scraping
+    website: null,
     votesCount: 0,
     createdAt: item.pubDate || new Date().toISOString(),
     topics: [],
+    xHandle: null,
+    email: null,
   }));
 }
 
-export async function findWebsiteUrl(phUrl: string): Promise<string | null> {
-  try {
-    const res = await fetch(phUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-      redirect: 'follow',
-    });
+// ─── Unified fetcher ─────────────────────────────────────────────────────────
 
-    if (!res.ok) return null;
+export async function fetchRecentProducts(): Promise<PhProduct[]> {
+  const token = process.env.PH_TOKEN;
 
-    const html = await res.text();
-    const $ = cheerio.load(html);
-
-    // Find external website link
-    for (const el of $('a[href]').toArray()) {
-      const href = $(el).attr('href') ?? '';
-      if (
-        href.startsWith('http') &&
-        !href.includes('producthunt.com') &&
-        !href.includes('twitter.com') &&
-        !href.includes('x.com') &&
-        !href.includes('facebook.com') &&
-        !href.includes('linkedin.com') &&
-        !href.includes('instagram.com') &&
-        !href.includes('cloudflare.com')
-      ) {
-        return href;
-      }
+  if (token) {
+    try {
+      return await fetchFromPhApi(token);
+    } catch (err) {
+      console.error(`PH API failed, falling back to RSS: ${err}`);
+      return await fetchFromRss();
     }
-
-    return null;
-  } catch {
-    return null;
   }
+
+  return await fetchFromRss();
 }
