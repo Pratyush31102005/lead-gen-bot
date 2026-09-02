@@ -1376,5 +1376,31 @@
     "votesCount": 0,
     "topics": [],
     "scrapedAt": "2026-09-01T16:21:02.317Z"
+  },
+  {
+    "companyName": "Notchling",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/notchling-lives-in-your-notch",
+    "phUrl": "https://www.producthunt.com/products/notchling-lives-in-your-notch",
+    "sourceUrl": "https://www.producthunt.com/products/notchling-lives-in-your-notch",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-09-02T03:50:50.683Z"
+  },
+  {
+    "companyName": "Cosmic Agent Plugins",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/cosmic",
+    "phUrl": "https://www.producthunt.com/products/cosmic",
+    "sourceUrl": "https://www.producthunt.com/products/cosmic",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-09-02T03:50:58.193Z"
   }
 ]
