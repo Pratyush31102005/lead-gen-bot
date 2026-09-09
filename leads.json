@@ -2689,5 +2689,31 @@
     "votesCount": 0,
     "topics": [],
     "scrapedAt": "2026-09-08T16:22:07.742Z"
+  },
+  {
+    "companyName": "Pastea",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/pastea",
+    "phUrl": "https://www.producthunt.com/products/pastea",
+    "sourceUrl": "https://www.producthunt.com/products/pastea",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-09-09T04:00:33.799Z"
+  },
+  {
+    "companyName": "GoodLads",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/good-lads-1-0",
+    "phUrl": "https://www.producthunt.com/products/good-lads-1-0",
+    "sourceUrl": "https://www.producthunt.com/products/good-lads-1-0",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-09-09T04:00:51.820Z"
   }
 ]
