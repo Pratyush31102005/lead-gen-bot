@@ -4847,5 +4847,31 @@
     "votesCount": 0,
     "topics": [],
     "scrapedAt": "2026-09-17T16:37:36.416Z"
+  },
+  {
+    "companyName": "Zella",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/zella",
+    "phUrl": "https://www.producthunt.com/products/zella",
+    "sourceUrl": "https://www.producthunt.com/products/zella",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-09-18T04:02:31.025Z"
+  },
+  {
+    "companyName": "Figo",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/figo-3",
+    "phUrl": "https://www.producthunt.com/products/figo-3",
+    "sourceUrl": "https://www.producthunt.com/products/figo-3",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-09-18T04:02:52.053Z"
   }
 ]
