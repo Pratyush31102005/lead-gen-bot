@@ -7785,5 +7785,31 @@
     "votesCount": 0,
     "topics": [],
     "scrapedAt": "2026-09-28T19:28:49.018Z"
+  },
+  {
+    "companyName": "Shotcandy",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/shotcandy",
+    "phUrl": "https://www.producthunt.com/products/shotcandy",
+    "sourceUrl": "https://www.producthunt.com/products/shotcandy",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-09-29T05:08:10.777Z"
+  },
+  {
+    "companyName": "GenCode",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/genspark",
+    "phUrl": "https://www.producthunt.com/products/genspark",
+    "sourceUrl": "https://www.producthunt.com/products/genspark",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-09-29T05:08:22.791Z"
   }
 ]
