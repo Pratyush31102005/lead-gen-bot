@@ -12621,5 +12621,44 @@
     "votesCount": 0,
     "topics": [],
     "scrapedAt": "2026-10-13T19:06:05.409Z"
+  },
+  {
+    "companyName": "GotEmail",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/gotemail",
+    "phUrl": "https://www.producthunt.com/products/gotemail",
+    "sourceUrl": "https://www.producthunt.com/products/gotemail",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-10-14T04:18:06.086Z"
+  },
+  {
+    "companyName": "Muse Wonder",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/meta-ai",
+    "phUrl": "https://www.producthunt.com/products/meta-ai",
+    "sourceUrl": "https://www.producthunt.com/products/meta-ai",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-10-14T04:18:09.090Z"
+  },
+  {
+    "companyName": "OpenWhispr for iOS",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/openwispr-open-source-ai-speech-to-text",
+    "phUrl": "https://www.producthunt.com/products/openwispr-open-source-ai-speech-to-text",
+    "sourceUrl": "https://www.producthunt.com/products/openwispr-open-source-ai-speech-to-text",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-10-14T04:18:16.598Z"
   }
 ]
