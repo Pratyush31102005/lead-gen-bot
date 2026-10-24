@@ -15520,5 +15520,44 @@
     "votesCount": 0,
     "topics": [],
     "scrapedAt": "2026-10-23T16:47:32.272Z"
+  },
+  {
+    "companyName": "ShogunAI",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/shogunai",
+    "phUrl": "https://www.producthunt.com/products/shogunai",
+    "sourceUrl": "https://www.producthunt.com/products/shogunai",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-10-24T04:00:52.819Z"
+  },
+  {
+    "companyName": "Plango",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/plango",
+    "phUrl": "https://www.producthunt.com/products/plango",
+    "sourceUrl": "https://www.producthunt.com/products/plango",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-10-24T04:00:55.823Z"
+  },
+  {
+    "companyName": "Bloblings",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/bloblings",
+    "phUrl": "https://www.producthunt.com/products/bloblings",
+    "sourceUrl": "https://www.producthunt.com/products/bloblings",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-10-24T04:00:58.827Z"
   }
 ]
