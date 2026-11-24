@@ -24087,5 +24087,70 @@
     "votesCount": 0,
     "topics": [],
     "scrapedAt": "2026-11-24T09:15:21.946Z"
+  },
+  {
+    "companyName": "tday.com",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/tday",
+    "phUrl": "https://www.producthunt.com/products/tday",
+    "sourceUrl": "https://www.producthunt.com/products/tday",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-11-24T22:09:43.217Z"
+  },
+  {
+    "companyName": "Mystonie",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/mystonie",
+    "phUrl": "https://www.producthunt.com/products/mystonie",
+    "sourceUrl": "https://www.producthunt.com/products/mystonie",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-11-24T22:09:47.722Z"
+  },
+  {
+    "companyName": "Hourly Journal",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/hourly-journal",
+    "phUrl": "https://www.producthunt.com/products/hourly-journal",
+    "sourceUrl": "https://www.producthunt.com/products/hourly-journal",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-11-24T22:09:55.230Z"
+  },
+  {
+    "companyName": "Cullman",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/cullman",
+    "phUrl": "https://www.producthunt.com/products/cullman",
+    "sourceUrl": "https://www.producthunt.com/products/cullman",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-11-24T22:09:56.732Z"
+  },
+  {
+    "companyName": "Finseo",
+    "description": "Discussion\n            |\n            Link",
+    "tagline": "Discussion\n            |\n            Link",
+    "xHandle": null,
+    "email": null,
+    "websiteUrl": "https://www.producthunt.com/products/finseo-ai",
+    "phUrl": "https://www.producthunt.com/products/finseo-ai",
+    "sourceUrl": "https://www.producthunt.com/products/finseo-ai",
+    "votesCount": 0,
+    "topics": [],
+    "scrapedAt": "2026-11-24T22:10:10.249Z"
   }
 ]
